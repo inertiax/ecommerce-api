@@ -28,20 +28,15 @@ class Product(models.Model):
         ('BLUE', 'blue'),
         ('GREEN', 'green'),
     )
-    SHOE_SIZES = (
-        (37, 37),
-        (39, 39),
-        (41, 41),
-        (43, 43),
-    )
+    # SHOE_SIZES = ((i, i) for i in range(36, 46))
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='products', on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
-    shirt_size = models.TextField(max_length=2, choices=SHIRT_SIZES, default='M')
-    shoe_size = models.IntegerField(choices=SHOE_SIZES, default=37)
-    color = models.TextField(max_length=10, choices=COLORS, default='BLACK')
+    size = models.TextField(max_length=2, choices=SHIRT_SIZES, null=True, blank=True)
+    # shoe_size = models.IntegerField(choices=SHOE_SIZES, default=37)
+    color = models.TextField(max_length=10, choices=COLORS, null=True, blank=True)
     # image = models.ImageField(default='default.jpg', upload_to='product_pics')
     price = models.FloatField()
     stock = models.IntegerField()
