@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from rest_framework.decorators import authentication_classes, permission_classes
+from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import get_user_model
 
@@ -9,7 +10,7 @@ from .models import CustomUser
 class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = get_user_model()
+        model = CustomUser
         fields = ('email', 'password', 'name')
         extra_kwargs = {
             'password': {

@@ -5,13 +5,13 @@ from . import views
 
 
 router = routers.DefaultRouter()
-router.register('users', views.UserViewSet)
+router.register('', views.UserViewSet)
 # user_list = views.UserViewSet.as_view({
 #     'get': 'list',
 #     'post': 'create'
 # })
 
-# app_name = 'user'
+app_name = 'user'
 
 urlpatterns = [
     # path('', user_list, name='user-list'),

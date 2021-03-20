@@ -30,7 +30,7 @@ class Product(models.Model):
     )
     # SHOE_SIZES = ((i, i) for i in range(36, 46))
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='products', on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
