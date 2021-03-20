@@ -7,35 +7,18 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User
 
 from .models import Product, Category
-from .serializers import ProductSerializer, CategorySerializer, \
-                            UserSerializer, AuthTokenSerializer
-
-
-# class RegistrationView(views.ObtainAuthToken):
-#     serializer_class = RegistrationSerializer
-#     renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
-
-
-class CreateUserView(viewsets.ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
-
-class CreateTokenView(views.ObtainAuthToken):
-    """create a new auth token for user"""
-    serializer_class = AuthTokenSerializer
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+from .serializers import ProductSerializer, CategorySerializer
 
 
 class ProductView(viewsets.ModelViewSet):
     serializer_class = ProductSerializer
-    queryset = Product.objects.all()
+    queryset = Product.objects.all().order_by('id')
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
 
 
 class CategoryView(viewsets.ModelViewSet):
     serializer_class = CategorySerializer
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by('title')
     authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
