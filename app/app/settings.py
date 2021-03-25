@@ -41,7 +41,6 @@ INSTALLED_APPS = [
 
     'ecommerce',
     'user',
-    'order',
     'rest_framework',
     'rest_framework.authtoken',
 ]

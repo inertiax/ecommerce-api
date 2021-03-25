@@ -20,7 +20,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
     def perform_create(self, serializer):
-        serializer.save(ownew=self.request.user)
+        serializer.save(user=self.request.user)
 
 """
 login logout oluştur APIview ile
