@@ -1,35 +1,35 @@
-from rest_framework import viewsets, generics, views, \
-                            authentication, permissions
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
+from django.contrib.auth import get_user_model
+from django.db.utils import IntegrityError
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from user.serializers import UserSerializer, AuthTokenSerializer
-from user.models import CustomUser
-
-
-class CreateTokenView(ObtainAuthToken):
-    """create a new auth token for user"""
-    serializer_class = AuthTokenSerializer
-    renderer_classes = api_settings.DEFAULT_RENDERER_CLASSES
+from .serializers import UserSerializer
 
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = CustomUser.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+User = get_user_model()
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
-"""
-login logout oluştur APIview ile
-https://stackoverflow.com/questions/30739352/django-rest-framework-token-authentication-logout
-"""
-class Logout(views.APIView):
+class RegisterView(APIView):
+    permission_classes = [AllowAny]
 
-    def get(self, request, format=None):
-        # delete the token to force logout
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_200_OK)
-    
+    def post(self, request, *args, **kwargs):
+        email = request.data.get("email")
+        password = request.data.get("password")
+        name = request.data.get("name")
+        surname = request.data.get("surname")
+        try:
+            user = User.objects.create_user(
+                email=email, password=password, name=name, surname=surname)
+            return Response(UserSerializer(user).data)
+        except ValueError as err:
+            return Response({'error': "Provide Invalid Details"}, status=400)
+        except IntegrityError as err:
+            return Response({'error': "User Already Exist"}, status=403)
+
+
+class GetUserView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        return Response(UserSerializer(request.user).data)
