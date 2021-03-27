@@ -1,4 +1,4 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, status
 from rest_framework.authtoken import views
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
@@ -13,7 +13,7 @@ from . import serializers
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductSerializer
     queryset = models.Product.objects.all().order_by('name')
-    
+
     def get_permissions(self):
         if self.action == 'list' or self.action == 'retrieve':
             permission_classes = [AllowAny]
@@ -36,20 +36,19 @@ class CategoryView(viewsets.ModelViewSet):
 
 class CartAPIView(views.APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = serializers.CartSerializer
     
     def get(self, request, *args, **kwargs):
         cart_obj, _ = models.Cart.objects.get_existing_or_new(request)
         context = {'request': request}
-        serializer = serializers.CartSerializer(cart_obj, context=context)
+        serializer = self.serializer_class(cart_obj, context=context)
 
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
-        # Request Data
         product_id = request.data.get("id")
         quantity = int(request.data.get("quantity", 1))
 
-        # Get Product Obj and Cart Obj
         product_obj = get_object_or_404(models.Product, pk=product_id)
         cart_obj, _ = models.Cart.objects.get_existing_or_new(request)
 
@@ -65,15 +64,22 @@ class CartAPIView(views.APIView):
             cart_item_obj.save()
 
         serializer = serializers.CartSerializer(cart_obj, context={'request': request})
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 class CheckCartProduct(views.APIView):
     permission_classes = [IsAuthenticated]
     
+    def delete(self, request, *args, product_id, **kwargs):
+        product_obj = get_object_or_404(models.CartItem, pk=product_id)
+        product_obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def get(self, request, *args, product_id, **kwargs):
         product_obj = get_object_or_404(models.Product, pk=product_id)
         cart_obj, created = models.Cart.objects.get_existing_or_new(request)
-        return Response(not created and models.CartItem.objects.filter(cart=cart_obj, product=product_obj).exists())
+        serializer = serializers.CartItemSerializer(cart_obj, {'request': request})
+        # return Response(not created and models.CartItem.objects.filter(cart=cart_obj, product=product_obj).exists())
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
 
 # class ProductView(viewsets.ModelViewSet):

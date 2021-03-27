@@ -31,7 +31,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
-    products = CartItemSerializer(read_only=True, many=True)
+    products = CartItemSerializer(read_only=False, many=True)
     user = UserSerializer(read_only=True)
     
     class Meta:
