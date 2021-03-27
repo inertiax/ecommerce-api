@@ -6,7 +6,6 @@ from rest_framework.views import APIView
 
 from .serializers import UserSerializer
 
-
 User = get_user_model()
 
 
@@ -20,7 +19,7 @@ class RegisterView(APIView):
         surname = request.data.get("surname")
         try:
             user = User.objects.create_user(
-                email=email, password=password, name=name, surname=surname)
+                email=email, name=name, surname=surname, password=password)
             return Response(UserSerializer(user).data)
         except ValueError as err:
             return Response({'error': "Provide Invalid Details"}, status=400)

@@ -15,12 +15,6 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
 
         return user
-    
-    def create_staffuser(self, email, password):
-        """creates and saves a new staff user"""
-        user = self.create_user(email, password)
-        user.is_staff = True
-        user.save(using=self._db)
 
     def create_superuser(self, email, password):
         """creates and saves a new superuser"""
@@ -33,31 +27,13 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """custom user model that supports using email instead of username"""
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=50)
     surname = models.CharField(max_length=50)
-    active = models.BooleanField(default=True)
-    staff = models.BooleanField(default=False)
-    superuser = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
-
-    def get_name(self):
-        return self.name
-    
-    def get_surname(self):
-        return self.surname
-    
-    @property
-    def is_active(self):
-        return self.active
-    
-    @property
-    def is_staff(self):
-        return self.staff
-    
-    @property
-    def is_admin(self):
-        return self.superuser

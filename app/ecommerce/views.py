@@ -1,9 +1,9 @@
-from rest_framework import viewsets, mixins, generics
+from rest_framework import viewsets
 from rest_framework.authtoken import views
-from rest_framework.settings import api_settings
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
+from rest_framework.response import Response
 
+from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
 
 from . import models
@@ -34,9 +34,51 @@ class CategoryView(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 
-class ProductView(viewsets.ModelViewSet):
-    serializer_class = serializers.ProductSerializer
-    queryset = models.Product.objects.all()
+class CartAPIView(views.APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args, **kwargs):
+        cart_obj, _ = models.Cart.objects.get_existing_or_new(request)
+        context = {'request': request}
+        serializer = serializers.CartSerializer(cart_obj, context=context)
+
+        return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        # Request Data
+        product_id = request.data.get("id")
+        quantity = int(request.data.get("quantity", 1))
+
+        # Get Product Obj and Cart Obj
+        product_obj = get_object_or_404(models.Product, pk=product_id)
+        cart_obj, _ = models.Cart.objects.get_existing_or_new(request)
+
+        if quantity <= 0:
+            cart_item_qs = models.CartItem.objects.filter(
+                cart=cart_obj, product=product_obj)
+            if cart_item_qs.count != 0:
+                cart_item_qs.first().delete()
+        else:
+            cart_item_obj, created = models.CartItem.objects.get_or_create(
+                product=product_obj, cart=cart_obj)
+            cart_item_obj.quantity = quantity
+            cart_item_obj.save()
+
+        serializer = serializers.CartSerializer(cart_obj, context={'request': request})
+        return Response(serializer.data)
+    
+class CheckCartProduct(views.APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request, *args, product_id, **kwargs):
+        product_obj = get_object_or_404(models.Product, pk=product_id)
+        cart_obj, created = models.Cart.objects.get_existing_or_new(request)
+        return Response(not created and models.CartItem.objects.filter(cart=cart_obj, product=product_obj).exists())
+        
+
+# class ProductView(viewsets.ModelViewSet):
+#     serializer_class = serializers.ProductSerializer
+#     queryset = models.Product.objects.all()
     # authentication_classes = (TokenAuthentication,)
     # permission_classes = (IsAuthenticated,)
 
@@ -44,9 +86,9 @@ class ProductView(viewsets.ModelViewSet):
     #     return self.queryset.filter(user=self.request.user).order_by('-id')
 
 
-class OrderItemViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.OrderItemSerializer
-    queryset = models.OrderItem.objects.all()
+# class OrderItemViewSet(viewsets.ModelViewSet):
+#     serializer_class = serializers.OrderItemSerializer
+#     queryset = models.OrderItem.objects.all()
     # authentication_classes = (TokenAuthentication,)
     # permission_classes = (IsAuthenticated,)
 
@@ -57,9 +99,9 @@ class OrderItemViewSet(viewsets.ModelViewSet):
     #     serializer.save(user=self.request.user)
 
 
-class OrderViewSet(viewsets.ModelViewSet):
-    serializer_class = serializers.OrderSerializer
-    queryset = models.Order.objects.all()
+# class OrderViewSet(viewsets.ModelViewSet):
+#     serializer_class = serializers.OrderSerializer
+#     queryset = models.Order.objects.all()
     # authentication_classes = (TokenAuthentication,)
     # permission_classes = (IsAuthenticated,)
 
