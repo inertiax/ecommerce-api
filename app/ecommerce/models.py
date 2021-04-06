@@ -3,6 +3,7 @@ from django.utils import timezone
 from django.urls import reverse
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 
 from app.settings import MEDIA_URL
 
@@ -26,6 +27,11 @@ COLORS = (
 
 class Category(models.Model):
     title = models.CharField(max_length=255)
+    sub_category = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        related_name='sub_categories',
+        null=True, blank=True)
 
     class Meta:
         verbose_name_plural = 'Categories'
@@ -69,6 +75,32 @@ class Product(models.Model):
         return f'{MEDIA_URL}{self.image}'
 
 
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='comments')
+    reply = models.ForeignKey('self', on_delete=models.CASCADE, blank=True, null=True, related_name='replies')
+    content = models.TextField()
+    create_date = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.content
+
+    def children(self):
+        return Comment.objects.filter(reply=self)
+
+    @property
+    def is_reply(self):
+        if self.reply is not None:
+            return False
+        return True
+
+    @property
+    def get_reply_count(self):
+        if self.is_reply:
+            return self.children().count()
+        return 0
+
+
 class CartManager(models.Manager):
     
     def get_existing_or_new(self, request):
@@ -97,31 +129,33 @@ class Cart(models.Model):
     
     def __str__(self):
         return str(self.id)
-    
+
     @property
     def get_total(self):
         total = 0
         for item in self.products.all():
             total += item.product.price * item.quantity
         return total
-    
+
     @property
     def get_tax_total(self):
         total = 0
         for item in self.products.all():
             total += item.product.price * item.quantity * item.product.tax / 100
         return total
-    
+
     @property
     def get_cart_total(self):
-        return sum(product.quantity for product in self.products.all())
+        return sum(item.quantity for item in self.products.all())
 
 
 class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='products')
-    
+
+    # objects = CartManager()
+
     class Meta:
         unique_together = (
             ('product', 'cart')
