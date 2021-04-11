@@ -5,21 +5,12 @@ from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.utils.decorators import method_decorator
+from django.db.transaction import atomic
 
 from . import models
 from . import serializers
 
-
-# class ProductViewSet(viewsets.ModelViewSet):
-#     serializer_class = serializers.ProductSerializer
-#     queryset = models.Product.objects.all().order_by('name')
-#
-#     def get_permissions(self):
-#         if self.action == 'list' or self.action == 'retrieve':
-#             permission_classes = [AllowAny]
-#         else:
-#             permission_classes = [IsAdminUser]
-#         return [permission() for permission in permission_classes]
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all().order_by('id')
@@ -31,10 +22,17 @@ class CategoryViewSet(viewsets.ModelViewSet):
         return serializers.CategoryWriteSerializer
 
 
-class ProductView(generics.ListCreateAPIView):
-    queryset = models.Product.objects.all().order_by('id')
+@method_decorator(atomic, name='dispatch')
+class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = models.Product.objects.all().order_by('name')
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
