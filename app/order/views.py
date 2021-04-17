@@ -22,10 +22,10 @@ class CheckoutView(APIView):
         return Response(serializer.data)
         
     def post(self, request, *args, **kwargs):
-        profile_id = request.data.get("profile_id")
-        print(profile_id)
-        if profile_id is None:
-            return Response({'error': 'Profile Id Not Found'}, status=400)
+        # profile_id = request.data.get("profile_id")
+        # print(profile_id)
+        # if profile_id is None:
+        #     return Response({'error': 'Profile Id Not Found'}, status=400)
         
         cart_obj, _ = Cart.objects.get_existing_or_new(request)
         print(cart_obj)
