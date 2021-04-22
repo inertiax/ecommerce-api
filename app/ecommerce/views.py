@@ -95,36 +95,3 @@ class CheckCartProduct(views.APIView):
         serializer = serializers.CartItemSerializer(cart_obj, {'request': request})
         # return Response(not created and models.CartItem.objects.filter(cart=cart_obj, product=product_obj).exists())
         return Response(serializer.data, status=status.HTTP_200_OK)
-        
-
-# class ProductView(viewsets.ModelViewSet):
-#     serializer_class = serializers.ProductSerializer
-#     queryset = models.Product.objects.all()
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
-
-    # def get_queryset(self):
-    #     return self.queryset.filter(user=self.request.user).order_by('-id')
-
-
-# class OrderItemViewSet(viewsets.ModelViewSet):
-#     serializer_class = serializers.OrderItemSerializer
-#     queryset = models.OrderItem.objects.all()
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
-
-    # def get_queryset(self):
-    #     return self.queryset.filter(product__order=self.request.date_added).order_by('-id')
-
-    # def perform_create(self, serializer):
-    #     serializer.save(user=self.request.user)
-
-
-# class OrderViewSet(viewsets.ModelViewSet):
-#     serializer_class = serializers.OrderSerializer
-#     queryset = models.Order.objects.all()
-    # authentication_classes = (TokenAuthentication,)
-    # permission_classes = (IsAuthenticated,)
-
-    # def get_queryset(self):
-    #     return self.queryset.filter(user=self.request.user).order_by('-id')
