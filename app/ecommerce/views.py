@@ -1,6 +1,11 @@
 from rest_framework import viewsets, status, generics
 from rest_framework.authtoken import views
-from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import (
+    IsAuthenticated,
+    AllowAny,
+    IsAdminUser,
+    IsAuthenticatedOrReadOnly,
+)
 from rest_framework.response import Response
 
 from django.shortcuts import get_object_or_404
@@ -13,22 +18,22 @@ from . import serializers
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = models.Category.objects.all().order_by('id')
+    queryset = models.Category.objects.all().order_by("id")
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
-        if self.request.method in ['GET']:
+        if self.request.method in ["GET"]:
             return serializers.CategoryReadSerializer
         return serializers.CategoryWriteSerializer
 
 
-@method_decorator(atomic, name='dispatch')
+@method_decorator(atomic, name="dispatch")
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductSerializer
-    queryset = models.Product.objects.all().order_by('name')
+    queryset = models.Product.objects.all().order_by("name")
 
     def get_permissions(self):
-        if self.action == 'list' or self.action == 'retrieve':
+        if self.action == "list" or self.action == "retrieve":
             permission_classes = [AllowAny]
         else:
             permission_classes = [IsAdminUser]
@@ -40,17 +45,17 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
-        if self.request.method in ['GET']:
+        if self.request.method in ["GET"]:
             return serializers.CommentReadSerializer
         return serializers.CommentWriteSerializer
 
 
 class CartAPIView(views.APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request, *args, **kwargs):
         cart_obj, _ = models.Cart.objects.get_existing_or_new(request)
-        context = {'request': request}
+        context = {"request": request}
         serializer = serializers.CartSerializer(cart_obj, context=context)
 
         return Response(serializer.data)
@@ -66,18 +71,20 @@ class CartAPIView(views.APIView):
 
         if quantity <= 0:
             cart_item_qs = models.CartItem.objects.filter(
-                cart=cart_obj, product=product_obj)
+                cart=cart_obj, product=product_obj
+            )
             if cart_item_qs.count != 0:
                 cart_item_qs.first().delete()
         else:
             cart_item_obj, created = models.CartItem.objects.get_or_create(
-                product=product_obj, cart=cart_obj)
+                product=product_obj, cart=cart_obj
+            )
             cart_item_obj.quantity = quantity
             cart_item_obj.save()
             # serializer = serializers.CartSerializer(cart_item_obj, context={'request': request})
             # return Response(serializer.data)
 
-        serializer = serializers.CartSerializer(cart_obj, context={'request': request})
+        serializer = serializers.CartSerializer(cart_obj, context={"request": request})
         return Response(serializer.data)
 
 
@@ -92,6 +99,6 @@ class CheckCartProduct(views.APIView):
     def get(self, request, *args, product_id, **kwargs):
         product_obj = get_object_or_404(models.Product, pk=product_id)
         cart_obj, created = models.Cart.objects.get_existing_or_new(request)
-        serializer = serializers.CartItemSerializer(cart_obj, {'request': request})
+        serializer = serializers.CartItemSerializer(cart_obj, {"request": request})
         # return Response(not created and models.CartItem.objects.filter(cart=cart_obj, product=product_obj).exists())
         return Response(serializer.data, status=status.HTTP_200_OK)

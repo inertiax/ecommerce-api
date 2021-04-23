@@ -10,18 +10,23 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('ecommerce', '0001_initial'),
+        ("ecommerce", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='cart',
-            name='user',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="cart",
+            name="user",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                to=settings.AUTH_USER_MODEL,
+            ),
         ),
         migrations.AlterUniqueTogether(
-            name='cartitem',
-            unique_together={('product', 'cart')},
+            name="cartitem",
+            unique_together={("product", "cart")},
         ),
     ]

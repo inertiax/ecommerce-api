@@ -1,22 +1,20 @@
 from rest_framework import serializers
 from rest_framework.fields import Field
 
-from .models import Product, Category, \
-                    Cart, CartItem, Comment
+from .models import Product, Category, Cart, CartItem, Comment
 from user.serializers import UserSerializer
 
 
 class ChildCategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
-        fields = ['id', 'title']
+        fields = ["id", "title"]
 
 
 class CategoryWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['id', 'title', 'sub_category']
+        fields = ["id", "title", "sub_category"]
 
 
 class CategoryReadSerializer(serializers.ModelSerializer):
@@ -24,19 +22,34 @@ class CategoryReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ['id', 'title', 'sub_category']
+        fields = ["id", "title", "sub_category"]
 
 
 class ProductSerializer(serializers.ModelSerializer):
     category = CategoryWriteSerializer()
-    
+
     class Meta:
         model = Product
-        fields = ['id', 'name', 'brand', 'category', 'size', 'color', 'original_price',
-                  'price', 'stock', 'description', 'image', 'create_date', 'last_modified']
+        fields = [
+            "id",
+            "name",
+            "brand",
+            "category",
+            "size",
+            "color",
+            "original_price",
+            "price",
+            "stock",
+            "description",
+            "image",
+            "create_date",
+            "last_modified",
+        ]
 
     def create(self, validated_data):
-        validated_data['category'] = Category.objects.create(**validated_data.get('category', {}))
+        validated_data["category"] = Category.objects.create(
+            **validated_data.get("category", {})
+        )
         product = Product.objects.create(**validated_data)
         return product
 
@@ -46,15 +59,22 @@ class ChildCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'content', 'create_date']
+        fields = ["id", "user", "content", "create_date"]
 
 
 class CommentWriteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Comment
-        get_reply_count = Field(source='get_reply_count')
-        fields = ['id', 'user', 'product', 'content', 'reply', 'get_reply_count', 'create_date']
+        get_reply_count = Field(source="get_reply_count")
+        fields = [
+            "id",
+            "user",
+            "product",
+            "content",
+            "reply",
+            "get_reply_count",
+            "create_date",
+        ]
 
 
 class CommentReadSerializer(serializers.ModelSerializer):
@@ -64,28 +84,43 @@ class CommentReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        get_reply_count = Field(source='get_reply_count')
-        fields = ['id', 'user', 'product', 'content', 'reply', 'get_reply_count', 'create_date']
+        get_reply_count = Field(source="get_reply_count")
+        fields = [
+            "id",
+            "user",
+            "product",
+            "content",
+            "reply",
+            "get_reply_count",
+            "create_date",
+        ]
 
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-    
+
     class Meta:
         model = CartItem
-        fields = ['id', 'product', 'quantity']
+        fields = ["id", "product", "quantity"]
 
 
 class CartSerializer(serializers.ModelSerializer):
     products = CartItemSerializer(read_only=True, many=True)
     user = UserSerializer(read_only=True)
-    
+
     class Meta:
         model = Cart
-        get_total = Field(source='get_total')
-        get_tax_total = Field(source='get_tax_total')
-        get_cart_total = Field(source='get_cart_total')
-        fields = ['id', 'user', 'products', 'get_total', 'get_tax_total', 'get_cart_total']
+        get_total = Field(source="get_total")
+        get_tax_total = Field(source="get_tax_total")
+        get_cart_total = Field(source="get_cart_total")
+        fields = [
+            "id",
+            "user",
+            "products",
+            "get_total",
+            "get_tax_total",
+            "get_cart_total",
+        ]
 
 
 # class OrderItemSerializer(serializers.ModelSerializer):
@@ -103,7 +138,7 @@ class CartSerializer(serializers.ModelSerializer):
 #         model = OrderItem
 #         fields = ['product', 'order', 'quantity', 'date_added']
 #         read_only_fields = ('id',)
-    
+
 #     def get_date_added(self, obj):
 #         return obj.date_added.strftime("%m/%d/%Y, %H:%M:%S")
 
@@ -121,7 +156,7 @@ class CartSerializer(serializers.ModelSerializer):
 #         orderitems = obj.orderitem_set.all()
 #         serializer = OrderItemSerializer(orderitems, many=True)
 #         return serializer.data
-    
+
 #     def get_user(self,obj):
 #         user = obj.user
 #         serializer = UserSerializer(user, many=False)

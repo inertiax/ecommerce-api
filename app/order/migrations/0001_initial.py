@@ -9,19 +9,35 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('ecommerce', '0002_auto_20210327_1454'),
+        ("ecommerce", "0002_auto_20210327_1454"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Order',
+            name="Order",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order_id', models.CharField(blank=True, max_length=100)),
-                ('active', models.BooleanField(default=True)),
-                ('create_date', models.DateTimeField(auto_now_add=True)),
-                ('shipping', models.DecimalField(decimal_places=2, default=10, max_digits=3)),
-                ('cart', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='ecommerce.cart')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order_id", models.CharField(blank=True, max_length=100)),
+                ("active", models.BooleanField(default=True)),
+                ("create_date", models.DateTimeField(auto_now_add=True)),
+                (
+                    "shipping",
+                    models.DecimalField(decimal_places=2, default=10, max_digits=3),
+                ),
+                (
+                    "cart",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="ecommerce.cart"
+                    ),
+                ),
             ],
         ),
     ]
