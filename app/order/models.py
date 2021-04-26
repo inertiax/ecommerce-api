@@ -1,6 +1,10 @@
 from django.db import models
+from django.contrib.auth import settings
+from django.contrib.auth import get_user_model
+from ecommerce.models import Cart, Product
 
-from ecommerce.models import Cart
+
+User = get_user_model()
 
 
 class OrderManager(models.Manager):
@@ -22,7 +26,7 @@ class OrderManager(models.Manager):
 
 class Order(models.Model):
     order_id = models.CharField(max_length=100, blank=True)
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='carts')
     active = models.BooleanField(default=True)
     create_date = models.DateTimeField(auto_now_add=True)
     shipping = models.DecimalField(default=10, max_digits=10, decimal_places=2)
@@ -33,13 +37,13 @@ class Order(models.Model):
         return self.order_id
 
     @property
-    def cart_total(self):
+    def get_cart_total(self):
         return self.cart.get_total
 
     @property
-    def tax_total(self):
+    def get_tax_total(self):
         return self.cart.get_tax_total
 
     @property
-    def total(self):
+    def get_total(self):
         return self.cart_total + self.tax_total + self.shipping

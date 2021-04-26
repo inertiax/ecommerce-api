@@ -26,6 +26,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return serializers.CategoryReadSerializer
         return serializers.CategoryWriteSerializer
 
+    def get_permissions(self):
+        if self.action == "list" or self.action == "retrieve":
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAdminUser]
+        return [permission() for permission in permission_classes]
+
 
 @method_decorator(atomic, name="dispatch")
 class ProductViewSet(viewsets.ModelViewSet):
@@ -51,7 +58,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 
 class CartAPIView(views.APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
         cart_obj, _ = models.Cart.objects.get_existing_or_new(request)

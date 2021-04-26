@@ -153,8 +153,10 @@ SWAGGER_SETTINGS = {
     }
 }
 
-# CORS_ORIGIN_WHITELIST = (
-#     'localhost:8080',
-# )
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8081",
+    "http://localhost:8080",
+    "http://127.0.0.1:8081"
+]
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"

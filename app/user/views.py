@@ -19,29 +19,29 @@ class RegisterView(APIView):
     serializer_class = UserSerializer
 
     def post(self, request, *args, **kwargs):
-        email = request.data.get("email")
-        password = request.data.get("password")
-        name = request.data.get("name")
-        surname = request.data.get("surname")
-        user = User.objects.create_user(
-            email=email, password=password, name=name, surname=surname
-        )
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
         # email = request.data.get("email")
         # password = request.data.get("password")
         # name = request.data.get("name")
         # surname = request.data.get("surname")
-        # try:
-        #     user = User.objects.create_user(
-        #         email=email, password=password, name=name, surname=surname)
-        #     return Response(UserSerializer(user).data)
-        # except ValueError as err:
-        #     return Response({'error': "Provide Invalid Details"}, status=400)
-        # except IntegrityError as err:
-        #     return Response({'error': "User Already Exist"}, status=403)
+        # user = User.objects.create_user(
+        #     email=email, password=password, name=name, surname=surname
+        # )
+        # serializer = self.serializer_class(data=user)
+        # serializer.is_valid(raise_exception=True)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+
+        email = request.data.get("email")
+        password = request.data.get("password")
+        name = request.data.get("name")
+        surname = request.data.get("surname")
+        try:
+            user = User.objects.create_user(
+                email=email, password=password, name=name, surname=surname)
+            return Response(UserSerializer(user).data)
+        except ValueError as err:
+            return Response({'error': "Provide Invalid Details"}, status=400)
+        except IntegrityError as err:
+            return Response({'error': "User Already Exist"}, status=403)
 
 
 class GetUserView(APIView):
