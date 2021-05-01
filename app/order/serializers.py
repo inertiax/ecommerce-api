@@ -12,7 +12,7 @@ class OrderSerializer(serializers.ModelSerializer):
         get_tax_total = Field(source="get_tax_total")
         get_total = Field(source="get_total")
         fields = [
-            "order_id",
+            "id",
             "create_date",
             "shipping",
             "get_cart_total",
@@ -30,7 +30,7 @@ class DetailedOrderSerializer(serializers.ModelSerializer):
         get_tax_total = Field(source="get_tax_total")
         get_total = Field(source="get_total")
         fields = [
-            "order_id",
+            "id",
             "cart",
             "create_date",
             "get_cart_total",

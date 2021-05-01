@@ -25,7 +25,7 @@ class OrderManager(models.Manager):
 
 
 class Order(models.Model):
-    order_id = models.CharField(max_length=100, blank=True)
+    # order_id = models.CharField(max_length=100, blank=True)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='carts')
     active = models.BooleanField(default=True)
     create_date = models.DateTimeField(auto_now_add=True)
@@ -34,7 +34,7 @@ class Order(models.Model):
     objects = OrderManager()
 
     def __str__(self):
-        return self.order_id
+        return self.id
 
     @property
     def get_cart_total(self):
