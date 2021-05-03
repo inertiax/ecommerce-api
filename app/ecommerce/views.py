@@ -7,6 +7,8 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
+from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication, JWTTokenUserAuthentication
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
@@ -19,6 +21,7 @@ from . import serializers
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all().order_by("id")
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
@@ -26,25 +29,26 @@ class CategoryViewSet(viewsets.ModelViewSet):
             return serializers.CategoryReadSerializer
         return serializers.CategoryWriteSerializer
 
-    def get_permissions(self):
-        if self.action == "list" or self.action == "retrieve":
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsAdminUser]
-        return [permission() for permission in permission_classes]
+    # def get_permissions(self):
+    #     if self.action == "list" or self.action == "retrieve":
+    #         permission_classes = [AllowAny]
+    #     else:
+    #         permission_classes = [IsAdminUser]
+    #     return [permission() for permission in permission_classes]
 
 
 @method_decorator(atomic, name="dispatch")
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductSerializer
     queryset = models.Product.objects.all().order_by("name")
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
-    def get_permissions(self):
-        if self.action == "list" or self.action == "retrieve":
-            permission_classes = [AllowAny]
-        else:
-            permission_classes = [IsAdminUser]
-        return [permission() for permission in permission_classes]
+    # def get_permissions(self):
+    #     if self.action == "list" or self.action == "retrieve":
+    #         permission_classes = [AllowAny]
+    #     else:
+    #         permission_classes = [IsAdminUser]
+    #     return [permission() for permission in permission_classes]
 
 
 class CommentViewSet(viewsets.ModelViewSet):
