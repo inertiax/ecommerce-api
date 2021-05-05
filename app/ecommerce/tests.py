@@ -81,12 +81,11 @@ class ProductViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_product_create(self):
-        product = baker.make(Product)
-        expected_json = {
-            'category': product.category
-        }
-        # payload = serializers.ProductSerializer(product).data
-        response = self.client.post(self.endpoint, data=expected_json, format='json')
+        product = baker.make(Product, _create_files=True)
+        payload = serializers.ProductSerializer(product).data
+        print(payload)
+        response = self.client.post(self.endpoint, data=payload, format='json')
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 

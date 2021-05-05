@@ -54,8 +54,7 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE,
-        blank=True, null=True
+        Category, on_delete=models.CASCADE
     )
     size = models.TextField(max_length=2, choices=SHIRT_SIZES, null=True, blank=True)
     color = models.TextField(max_length=10, choices=COLORS, null=True, blank=True)
