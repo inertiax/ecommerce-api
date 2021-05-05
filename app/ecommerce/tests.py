@@ -25,8 +25,6 @@ class CategoryViewSetTest(APITestCase):
             email="test@test.com",
             password="test123")
         self.client.force_authenticate(self.user)
-        # refresh = RefreshToken.for_user(self.user)
-        # self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
 
     def test_category_get(self):
         response = self.client.get(self.endpoint)
@@ -81,7 +79,7 @@ class ProductViewSetTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_product_create(self):
-        product = baker.make(Product, _create_files=True)
+        product = baker.make(Product, _create_files=False)
         payload = serializers.ProductSerializer(product).data
         print(payload)
         response = self.client.post(self.endpoint, data=payload, format='json')

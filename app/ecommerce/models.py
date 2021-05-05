@@ -58,7 +58,7 @@ class Product(models.Model):
     )
     size = models.TextField(max_length=2, choices=SHIRT_SIZES, null=True, blank=True)
     color = models.TextField(max_length=10, choices=COLORS, null=True, blank=True)
-    image = models.FileField()  # upload_to="images/", blank=True, null=True)
+    image = models.FileField()  # models.ImageField(upload_to="images/", blank=True, null=True)
 
     original_price = models.DecimalField(
         max_digits=10, decimal_places=2, blank=True, null=True
