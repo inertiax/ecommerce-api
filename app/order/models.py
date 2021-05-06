@@ -46,4 +46,4 @@ class Order(models.Model):
 
     @property
     def get_total(self):
-        return self.cart_total + self.tax_total + self.shipping
+        return self.get_cart_total + self.get_tax_total + self.shipping

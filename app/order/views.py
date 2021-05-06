@@ -15,8 +15,7 @@ class CheckoutView(APIView):
         cart = Order.objects.all()
         cart_obj, _ = Cart.objects.get_existing_or_new(request)
         if cart_obj.get_cart_total == 0:
-            return Response({"error": "cart is empty"}, status=400)
-
+            return Response({"error": "cart is empty"}, status=status.HTTP_204_NO_CONTENT)
         serializer = DetailedOrderSerializer(cart, many=True)
         return Response(serializer.data)
 

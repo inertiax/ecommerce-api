@@ -139,14 +139,14 @@ class Cart(models.Model):
     @property
     def get_total(self):
         total = 0
-        for item in self.items.all():
+        for item in self.products.all():
             total += item.product.price * item.quantity
         return total
 
     @property
     def get_tax_total(self):
         total = 0
-        for item in self.items.all():
+        for item in self.products.all():
             total += item.product.price * item.quantity * item.product.tax / 100
         return total
 

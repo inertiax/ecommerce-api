@@ -1,15 +1,10 @@
-import json
-
-from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 from rest_framework.test import APITestCase, APIClient
 from rest_framework import status
 
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from model_bakery import baker
-from model_bakery.recipe import Recipe, seq, foreign_key
 
 from . import serializers
 from .models import Cart, Product, Category
@@ -81,32 +76,35 @@ class ProductViewSetTest(APITestCase):
     def test_product_create(self):
         product = baker.make(Product, _create_files=False)
         payload = serializers.ProductSerializer(product).data
-        print(payload)
+        # print(payload)
         response = self.client.post(self.endpoint, data=payload, format='json')
-        print(response.data)
+        # print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
-# class CheckoutViewTestCase(APITestCase):
-#
-#     def setUp(self):
-#         self.client = APIClient()
-#         self.user = get_user_model().objects.create_user(
-#             'test@amine.com',
-#             'test123'
-#         )
-#         self.client.force_authenticate(self.user)
-#         self.cart = baker.make('Cart')
-#         # refresh = RefreshToken.for_user(self.user)
-#         # self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
-#
-#     def test_get_checkout(self):
-#         sample_order(cart=self.cart)
-#         print(self.cart)
-#         response = self.client.get("/checkout/")
-#         print(response)
-#
-#         orders = Order.objects.all().order_by('-id')
-#         serializer = DetailedOrderSerializer(orders, many=True)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         self.assertEqual(response.data, serializer.data)
+class CartViewTestCase(APITestCase):
+
+    endpoint = '/cart/'
+
+    def setUp(self):
+        self.user = get_user_model().objects.create_user(
+            'test@amine.com',
+            'test123'
+        )
+        self.product = baker.make(Product)
+        refresh = RefreshToken.for_user(self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Bearer {refresh.access_token}")
+
+    def test_cart_get(self):
+        response = self.client.get(self.endpoint)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_cart_post(self):
+        cart = baker.make(Cart,
+                          user=self.user,
+                          products__id=1)
+        payload = serializers.CartSerializer(cart).data
+        print(payload)
+        response = self.client.post(self.endpoint, data=payload, format='json')
+        print(response.data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

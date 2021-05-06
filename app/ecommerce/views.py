@@ -89,7 +89,7 @@ class CartAPIView(views.APIView):
 
     def post(self, request, *args, **kwargs):
         # Request Data
-        product_id = request.data.get("product_id")
+        product_id = int(request.data.get("product_id", 1))
         quantity = int(request.data.get("quantity", 1))
 
         # Get Product Obj and Cart Obj
