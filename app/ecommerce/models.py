@@ -54,7 +54,8 @@ class Product(models.Model):
     name = models.CharField(max_length=255)
     brand = models.CharField(max_length=255)
     category = models.ForeignKey(
-        Category, on_delete=models.CASCADE
+        Category, on_delete=models.CASCADE,
+        null=True, blank=True
     )
     size = models.TextField(max_length=2, choices=SHIRT_SIZES, null=True, blank=True)
     color = models.TextField(max_length=10, choices=COLORS, null=True, blank=True)
@@ -66,7 +67,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     tax = models.DecimalField(max_digits=4, decimal_places=2, default=18)
 
-    stock = models.IntegerField()
+    stock = models.PositiveIntegerField()
     description = models.TextField(max_length=1000, null=False, blank=True)
     active = models.BooleanField(default=True)
     create_date = models.DateTimeField(auto_now_add=True)
@@ -157,7 +158,7 @@ class Cart(models.Model):
 
 class CartItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
+    quantity = models.PositiveIntegerField(default=1)
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="products")
 
     class Meta:
