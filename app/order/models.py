@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth import settings
 from django.contrib.auth import get_user_model
-from ecommerce.models import Cart, Product
+from ecommerce.models import Cart
 
 
 User = get_user_model()

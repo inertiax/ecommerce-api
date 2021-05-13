@@ -1,19 +1,14 @@
-from rest_framework import viewsets, status, generics
+from rest_framework import viewsets, status
 from rest_framework.authtoken import views
-from rest_framework.decorators import action
-from rest_framework.parsers import FormParser, MultiPartParser
 from rest_framework.permissions import (
     IsAuthenticated,
     AllowAny,
-    IsAdminUser,
     IsAuthenticatedOrReadOnly,
 )
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
-from rest_framework_simplejwt.authentication import JWTAuthentication, JWTTokenUserAuthentication
 
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.db.transaction import atomic
 
@@ -24,47 +19,47 @@ from . import serializers
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all().order_by("id")
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_serializer_class(self):
         if self.request.method in ["GET"]:
             return serializers.CategoryReadSerializer
         return serializers.CategoryWriteSerializer
 
-    # def get_permissions(self):
-    #     if self.action == "list" or self.action == "retrieve":
-    #         permission_classes = [AllowAny]
-    #     else:
-    #         permission_classes = [IsAdminUser]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        if self.action == "list" or self.action == "retrieve":
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
 
 @method_decorator(atomic, name="dispatch")
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductSerializer
     queryset = models.Product.objects.all().order_by("name")
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    # permission_classes = [IsAuthenticatedOrReadOnly]
 
-    # def get_permissions(self):
-    #     if self.action == "list" or self.action == "retrieve":
-    #         permission_classes = [AllowAny]
-    #     else:
-    #         permission_classes = [IsAdminUser]
-    #     return [permission() for permission in permission_classes]
+    def get_permissions(self):
+        if self.action == "list" or self.action == "retrieve":
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
-    @action(
-        detail=True,
-        parser_classes=(FormParser, MultiPartParser),
-        methods=['PUT']
-    )
-    def image(self, request, pk):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            poster = models.Product.objects.get(pk=pk)
-            poster.image = request.data.get('image')
-            poster.save()
-            return Response(status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @action(
+    #     detail=True,
+    #     parser_classes=(FormParser, MultiPartParser),
+    #     methods=['PUT']
+    # )
+    # def image(self, request, pk):
+    #     serializer = self.get_serializer(data=request.data)
+    #     if serializer.is_valid():
+    #         poster = models.Product.objects.get(pk=pk)
+    #         poster.image = request.data.get('image')
+    #         poster.save()
+    #         return Response(status=status.HTTP_200_OK)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentViewSet(viewsets.ModelViewSet):

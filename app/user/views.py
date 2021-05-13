@@ -1,9 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.db.utils import IntegrityError
+from django.db.utils import IntegrityError, InternalError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import status, generics
+from rest_framework import status
 
 from .serializers import UserSerializer
 
@@ -27,6 +27,8 @@ class RegisterView(APIView):
             return Response({'error': "Provide Invalid Details"}, status=400)
         except IntegrityError as err:
             return Response({'error': "User Already Exist"}, status=403)
+        except InternalError as err:
+            return Response({'error': "Internal Server Error"}, status=500)
 
 
 class GetUserView(APIView):

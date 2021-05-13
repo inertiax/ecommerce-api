@@ -26,7 +26,7 @@ class CategoryReadSerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = CategoryWriteSerializer()
+    # category = CategoryWriteSerializer(read_only=True)
     image = fields.FileField(max_length=None, use_url=True, allow_null=True)
 
     class Meta:
@@ -47,12 +47,12 @@ class ProductSerializer(serializers.ModelSerializer):
             "last_modified",
         ]
 
-    def create(self, validated_data):
-        validated_data["category"] = Category.objects.create(
-            **validated_data.get("category", {})
-        )
-        product = Product.objects.create(**validated_data)
-        return product
+    # def create(self, validated_data):
+    #     validated_data["category"] = Category.objects.create(
+    #         **validated_data.get("category", {})
+    #     )
+    #     product = Product.objects.create(**validated_data)
+    #     return product
 
 
 class ChildCommentSerializer(serializers.ModelSerializer):
@@ -122,43 +122,3 @@ class CartSerializer(serializers.ModelSerializer):
             "get_tax_total",
             "get_cart_total",
         ]
-
-
-# class OrderItemSerializer(serializers.ModelSerializer):
-#     product = serializers.PrimaryKeyRelatedField(
-#         many=True,
-#         queryset=Product.objects.all()
-#     )
-#     order = serializers.PrimaryKeyRelatedField(
-#         many=True,
-#         queryset=Order.objects.all()
-#     )
-#     date_added = serializers.SerializerMethodField()
-
-#     class Meta:
-#         model = OrderItem
-#         fields = ['product', 'order', 'quantity', 'date_added']
-#         read_only_fields = ('id',)
-
-#     def get_date_added(self, obj):
-#         return obj.date_added.strftime("%m/%d/%Y, %H:%M:%S")
-
-
-# class OrderSerializer(serializers.ModelSerializer):
-#     # user = serializers.SerializerMethodField(read_only=True)
-#     order = serializers.SerializerMethodField(read_only=True)
-
-#     class Meta:
-#         model = Order
-#         fields = '__all__'
-#         read_only_fields = ('id',)
-
-#     def get_order(self, obj):
-#         orderitems = obj.orderitem_set.all()
-#         serializer = OrderItemSerializer(orderitems, many=True)
-#         return serializer.data
-
-#     def get_user(self,obj):
-#         user = obj.user
-#         serializer = UserSerializer(user, many=False)
-#         return serializer.data

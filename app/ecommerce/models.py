@@ -1,9 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from django.core.files import File
-
-from io import BytesIO
-from PIL import Image
+from django.core.validators import MinValueValidator
 
 from app.settings import MEDIA_URL
 
@@ -62,10 +59,13 @@ class Product(models.Model):
     image = models.FileField()  # models.ImageField(upload_to="images/", blank=True, null=True)
 
     original_price = models.DecimalField(
-        max_digits=10, decimal_places=2, blank=True, null=True
+        max_digits=10, decimal_places=2, validators=[MinValueValidator(limit_value=0.01)],
+        blank=True, null=True
     )
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    tax = models.DecimalField(max_digits=4, decimal_places=2, default=18)
+    price = models.DecimalField(max_digits=10, decimal_places=2,
+                                validators=[MinValueValidator(limit_value=0.01)])
+    tax = models.DecimalField(max_digits=4, decimal_places=2, default=18,
+                              validators=[MinValueValidator(limit_value=0.01)])
 
     stock = models.PositiveIntegerField()
     description = models.TextField(max_length=1000, null=False, blank=True)
