@@ -1,9 +1,9 @@
 <template>
-  <div class="home">
+  <div class="home content">
     <section class="hero is-dark is-medium mb-6">
       <div class="hero-body has-text-centered">
         <p class="title mb-6">Welcome</p>
-        <p class="subtitle">Best Store Ever</p>
+        <p class="subtitle">Will Be.. Best Store Ever</p>
       </div>
     </section>
 
@@ -66,9 +66,15 @@ export default {
 </script>
 
 <style>
-  .image {
-    margin-top: -1.25rem;
-    margin-left: -1.25rem;
-    margin-right: -1.25rem;
-  }
+
+.content {
+  width: 70%;
+  margin: auto;
+}
+
+.image {
+  margin-top: -1.25rem;
+  margin-left: -1.25rem;
+  margin-right: -1.25rem;
+}
 </style>

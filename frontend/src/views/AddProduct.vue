@@ -1,5 +1,5 @@
 <template>
-  <div class="page-product">
+  <div class="content page-product">
     <div class="row">
       <div class="column is-9">
         <h1 class="title">Add New Product</h1>
@@ -24,7 +24,10 @@
       <div class="field">
         <label class="label">Category</label>
         <div class="control">
-          <input type="text" class="input" v-model="category.title" required>
+          <input type="text" class="input" v-model="category.title">
+<!--          <select name="category" class="select" v-for="categories in category" v-bind:key="categories.title.id">-->
+<!--            <option value="categories.title.id">{{ categories.title }}</option>-->
+<!--          </select>-->
         </div>
       </div>
 
@@ -74,37 +77,23 @@
         </div>
       </div>
 
-<!--      <div id="image-file-ex" class="file has-name">-->
-<!--        <label class="file-label">-->
-<!--          <input class="file-input" type="file" @change="onFileChange" name="image">-->
-<!--          <span class="file-cta">-->
-<!--            <span class="file-icon">-->
-<!--              <i class="fas fa-upload"></i>-->
-<!--            </span>-->
-<!--            <span class="file-label">-->
-<!--              Choose an image…-->
-<!--            </span>-->
-<!--          </span>-->
-<!--          <span class="file-name">-->
-<!--            No file uploaded-->
-<!--          </span>-->
-<!--        </label>-->
-<!--      </div>-->
-        <div id="app">
-          <div v-if="!image">
-            <h2>Select an image</h2>
-            <input type="file" @change="onFileChange">
-          </div>
-          <div v-else>
-            <img :src="image" />
-            <button @click="removeImage">Remove image</button>
-          </div>
+      <div id="app">
+        <div v-if="!image">
+          <h3>Select an image</h3>
+          <input type="file" @change="onFileChange">
         </div>
 
-<!--      <div class="image-file">-->
-<!--        <label for>Food picture</label>-->
-<!--        <input type="file-input" name="file" @change="onFileChange">-->
-<!--      </div>-->
+        <div v-else>
+          <img :src="image" />
+          <button @click="removeImage">Remove image</button>
+        </div>
+      </div>
+
+      <br>
+      <div class="notification is-danger" v-if="errors.length">
+          <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
+      </div>
+
       <br>
       <div class="control">
         <a class="button is-dark" @click="addProduct">Add Product</a>
@@ -131,10 +120,12 @@ export default {
       price: '',
       stock: '',
       description: '',
-      image: ''
+      image: '',
+      errors: []
     }
   },
   mounted() {
+    document.title = "Add Product | Let's Shop"
     console.log(this.category.title)
     if (!localStorage.getItem('token')) {
       this.$router.push({name : 'LogIn'});
@@ -160,83 +151,98 @@ export default {
     removeImage: function (e) {
       this.image = '';
     },
-    // onFileChange(e) {
-    //   let files = e.target.files || e.dataTransfer.files;
-    //   if (!files.length) {
-    //     return;
-    //   }
-    //   this.image = files[0];
-    //   this.createImage(files[0]);
-    // },
-    // createImage(file) {
-    //   // let image = new Image();
-    //   let reader = new FileReader();
-    //   let vm = this;
-    //   reader.onload = e => {
-    //     vm.preview = e.target.result;
-    //   };
-    //   reader.readAsDataURL(file);
-    // },
     async addProduct() {
-      const newProduct = {
-        id: this.id,
-        name: this.name,
-        brand: this.brand,
-        category: this.category.title,
-        size: this.size,
-        color: this.color,
-        price: this.price,
-        stock: this.stock,
-        description: this.description,
-        // image: this.image
+      this.errors = []
+      if (this.name === '') {
+          this.errors.push('You should add a name')
       }
-      // const fileInput = document.querySelector('#image-file-ex input[type=file]');
-      // fileInput.onchange = () => {
-      //   if (fileInput.files.length > 0) {
-      //     const fileName = document.querySelector('#image-file-ex .file-name');
-      //     fileName.textContent = fileInput.files[0].name;
-      //   }
-      // }
-      this.$store.commit('setIsLoading', true)
-      let formData = new FormData();
-      formData.append("id", this.id)
-      formData.append("name", this.name)
-      formData.append("brand", this.brand)
-      formData.append("category", this.category)
-      formData.append("size", this.size)
-      formData.append("color", this.color)
-      formData.append("price", this.price)
-      formData.append("stock", this.stock)
-      formData.append("description", this.description)
-      formData.append("image", this.imageFiles[0]);
+      if (this.brand === '') {
+          this.errors.push('You should add a brand')
+      }
+      if (this.category.title === '') {
+          this.errors.push('You should add a category')
+      }
+      if (isNaN(this.size)) {
+          this.errors.push('Select a size or select None.')
+      }
+      if (isNaN(this.color)) {
+          this.errors.push('Select a color or select None.')
+      }
+      if (isNaN(this.price)) {
+          this.errors.push('Price should be a number')
+      }
+      if (this.price < 0) {
+          this.errors.push('Price should be a positive number')
+      }
+      if (this.price === '') {
+          this.errors.push('You should enter a price')
+      }
+      if (isNaN(this.stock)) {
+          this.errors.push('Stock should be a price number')
+      }
+      if (this.stock < 0) {
+          this.errors.push('Stock should be a positive number or zero')
+      }
+      if (this.stock === '') {
+          this.errors.push('You should enter a stock number')
+      }
+      if (this.description === '') {
+          this.errors.push('You should enter a description')
+      }
+      if (this.image === '') {
+          this.errors.push('You should select an image')
+      }
+      if (!this.errors.length) {
+        let formData = new FormData();
+        formData.append("id", this.id)
+        formData.append("name", this.name)
+        formData.append("brand", this.brand)
+        formData.append("category", this.category.title)
+        formData.append("size", this.size)
+        formData.append("color", this.color)
+        formData.append("price", this.price)
+        formData.append("stock", this.stock)
+        formData.append("description", this.description)
+        formData.append("image", this.imageFiles[0]);
 
-      await axios
-        .post('product/', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-      })
-        .then(response => {
-          // this.$router.push('/')
-          this.$emit("fetchData")
 
-          const toPath = this.$route.query.to || 'product/' + id + '/'
-          this.$router.push(toPath)
-          toast({
-            message: 'Product added successfully',
-            type: 'is-black',
-            dismissible: true,
-            pauseOnHover: true,
-            duration: 2000,
-            position: 'top-center'
+        await axios
+          .post('product/', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+        })
+          .then(response => {
+            this.$router.push('/')
+            this.$emit("fetchData")
+
+            // const toPath = this.$route.query.to || 'product/' + id + '/'
+            // this.$router.push(toPath)
+
+            toast({
+              message: 'Product added successfully',
+              type: 'is-black',
+              dismissible: true,
+              pauseOnHover: true,
+              duration: 3000,
+              position: 'top-center'
+            })
+
           })
+          .catch(error => {
+            if (error.response) {
+                for (const property in error.response.data) {
+                    this.errors.push(`${property}: ${error.response.data[property]}`)
+                }
+                console.log(JSON.stringify(error.response.data))
+            } else if (error.message) {
+                this.errors.push('Something went wrong. Please try again')
 
-          // document.title = this.product.name + " | Let's Shop"
-        })
-        .catch(error => {
-          console.log(error)
-        })
-      this.$store.commit('setIsLoading', false)
+                console.log(JSON.stringify(error))
+            }
+          })
+        // this.$store.commit('setIsLoading', false)
+      }
     }
   }
 }
@@ -244,10 +250,15 @@ export default {
 
 <style>
 
+.content {
+  max-width: 800px;
+  margin: auto;
+}
+
 #app {
   text-align: left;
 }
-img {
+.img {
   width: 30%;
   margin: auto;
   display: block;

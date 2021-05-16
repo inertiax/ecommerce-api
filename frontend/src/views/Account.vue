@@ -54,6 +54,7 @@ export default {
             await axios
                 .get('/checkout/')
                 .then(response => {
+                    console.log(response.data)
                     this.orders = response.data
                 })
                 .catch(error => {

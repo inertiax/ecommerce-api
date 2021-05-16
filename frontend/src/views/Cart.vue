@@ -6,7 +6,7 @@
             </div>
 
             <div class="column is-12 box">
-                <table class="table is-fullwidth" v-if="cartTotalLength">
+                <table class="table is-fullwidth" v-if="cart.items.get_cart_total">
                     <thead>
                         <tr>
                             <th>Product</th>
@@ -19,20 +19,26 @@
 
                     <tbody>
                         <CartItem
-                            v-for="item in cart.items"
+                            v-for="item in cart.items.products"
                             v-bind:key="item.product.id"
                             v-bind:initialItem="item"
                             v-on:removeFromCart="removeFromCart" />
                     </tbody>
                 </table>
 
-                <p v-else>You don't have any products in your cart...</p>
+                <p v-else>You don't have any items in your cart...</p>
             </div>
 
             <div class="column is-12 box">
                 <h2 class="subtitle">Summary</h2>
 
-                <strong>{{ cartTotalPrice.toFixed(2) }} ₺</strong>, {{ cartTotalLength }} items
+                <strong>Number of Items: </strong>{{ cart.items.get_cart_total }} items
+                <br>
+                <strong>Tax Total: </strong>{{ cart.items.get_tax_total }} ₺
+                <br>
+                <strong>Cart Total: </strong>{{ cart.items.get_total }} ₺
+<!--              <hr>-->
+<!--                <strong>{{ products.get_total }} ₺</strong>, {{ products.get_cart_total }} items-->
 
                 <hr>
 
@@ -45,6 +51,7 @@
 <script>
 import axios from 'axios'
 import CartItem from '@/components/CartItem.vue'
+
 export default {
     name: 'Cart',
     components: {
@@ -53,16 +60,46 @@ export default {
     data() {
         return {
             cart: {
-                items: []
-            }
+              items: []
+            },
+            // products: [],
+            // get_total: '',
+            // get_tax_total: '',
+            // get_cart_total: ''
         }
     },
     mounted() {
-        this.cart = this.$store.state.cart
+        this.getMyCart()
+
     },
     methods: {
-        removeFromCart(item) {
-            this.cart.items = this.cart.items.filter(i => i.product.id !== item.product.id)
+        async getMyCart() {
+            this.$store.commit('setIsLoading', true)
+            await axios
+                .get('/cart/')
+                .then(response => {
+                    this.cart.items = response.data
+                    console.log(this.cart.items)
+                    // console.log(this.products.products)
+                    // console.log(this.products.get_total)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+            this.$store.commit('setIsLoading', false)
+        },
+        async removeFromCart(item) {
+            // console.log(item)
+            // console.log(item.id)
+            await axios
+                .delete('cart/' + item.id + '/')
+                .then(response => {
+
+                  this.cart.items.products = this.cart.items.products.filter(i => i.product.id !== item.product.id)
+                })
+                .catch(error => {
+                  console.log(error)
+                })
         }
     },
     computed: {

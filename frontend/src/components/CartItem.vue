@@ -13,6 +13,9 @@
 </template>
 
 <script>
+import axios from "axios";
+import {toast} from "bulma-toast";
+
 export default {
     name: 'CartItem',
     props: {
@@ -29,13 +32,47 @@ export default {
         },
         decrementQuantity(item) {
             item.quantity -= 1
+
             if (item.quantity === 0) {
                 this.$emit('removeFromCart', item)
             }
+
+            const decr_item = {
+              product_id: item.product.id,
+              quantity: item.quantity
+            }
+
+            axios
+              .post('cart/', decr_item)
+              .then(response => {
+                // this.item = response.data
+                this.$store.commit('addToCart', decr_item)
+              })
+              .catch(error => {
+                console.log(error)
+              })
+
             this.updateCart()
         },
         incrementQuantity(item) {
-            item.quantity += 1
+
+          item.quantity += 1
+
+          const incr_item = {
+            product_id: item.product.id,
+            quantity: item.quantity
+          }
+
+          axios
+            .post('cart/', incr_item)
+            .then(response => {
+              // this.item = response.data
+              this.$store.commit('addToCart', incr_item)
+            })
+            .catch(error => {
+              console.log(error)
+            })
+
             this.updateCart()
         },
         updateCart() {

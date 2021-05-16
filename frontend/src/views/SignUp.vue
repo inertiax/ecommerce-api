@@ -71,15 +71,23 @@ export default {
         submitForm() {
             this.errors = []
             if (this.email === '') {
-                this.errors.push('The email is missing')
+                this.errors.push('The email is missing.')
             }
             if (this.password === '') {
-                this.errors.push('The password is too short')
+                this.errors.push('The password is too short.')
+            }
+            if (this.name === '') {
+                this.errors.push('You must enter a name.')
+            }
+            if (this.surname === '') {
+                this.errors.push('You must enter a surname.')
             }
             if (!this.errors.length) {
                 const formData = {
                     email: this.email,
-                    password: this.password
+                    password: this.password,
+                    name: this.name,
+                    surname: this.surname
                 }
                 axios
                     .post("/user/signup/", formData)

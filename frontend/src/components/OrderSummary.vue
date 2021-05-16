@@ -11,13 +11,12 @@
                     <th>Price</th>
                     <th>Quantity</th>
                     <th>Total</th>
-<!--                  <td>{{ order.products.id.product.id }}</td>-->
                 </tr>
             </thead>
 
             <tbody>
                 <tr
-                    v-for="item in order.products"
+                    v-for="item in order.cart.products"
                     v-bind:key="item.product.id"
                 >
                     <td>{{ item.product.name }}</td>

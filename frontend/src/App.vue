@@ -13,11 +13,7 @@
 
       <div class="navbar-menu" id="navbar-menu" v-bind:class="{'is-active': showMobileMenu}">
         <div class="navbar-end">
-<!--          <div class="column is-3" v-for="category in category.products" v-bind:key="category.id">-->
-<!--            <router-link :to="{name: 'Category', params: {id: category.id}}" class="navbar-item">{{ category.name }}</router-link>-->
-<!--            <router-link to="/category/1/" class="navbar-item">Phone</router-link>-->
-<!--            <router-link to="/computer" class="navbar-item">Computer</router-link>-->
-<!--          </div>-->
+
           <div class="navbar-item">
             <div class="buttons">
 
@@ -35,7 +31,7 @@
 
               <router-link to="/cart/" class="button is-primary is-light">
                 <span class="icon"><i class="fas fa-shopping-cart"></i></span>
-                <span>Cart ({{ cartTotalLength }})</span>
+                <span>Cart ({{ cart.products.get_cart_total }})</span>
               </router-link>
             </div>
           </div>
@@ -65,7 +61,7 @@ export default {
     return {
       showMobileMenu: false,
       cart: {
-        items: []
+        products: []
       }
     }
   },
@@ -74,20 +70,35 @@ export default {
 
     const token = this.$store.state.token
     if (token) {
-        axios.defaults.headers.common['Authorization'] = "Token " + token
+        axios.defaults.headers.common['Authorization'] = "Bearer " + token
     } else {
         axios.defaults.headers.common['Authorization'] = ""
     }
   },
   mounted() {
-    this.cart = this.$store.state.cart
+    this.getMyCart()
+    // this.cart = this.$store.state.cart
+  },
+  methods: {
+      async getMyCart() {
+          this.$store.commit('setIsLoading', true)
+          await axios
+              .get('/cart/')
+              .then(response => {
+                  this.cart.products = response.data
+              })
+              .catch(error => {
+                  console.log(error)
+              })
+          this.$store.commit('setIsLoading', false)
+      },
   },
   computed: {
     cartTotalLength() {
       let totalLength = 0
 
-      for (let i = 0; i < this.cart.items.length; i++) {
-        totalLength += this.cart.items[i].quantity
+      for (let i = 0; i < this.cart.products.length; i++) {
+        totalLength += this.cart.products[i].quantity
       }
       return totalLength
     }
