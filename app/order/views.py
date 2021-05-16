@@ -22,4 +22,4 @@ class CheckoutView(APIView):
     def post(self, request, *args, **kwargs):
         cart_obj, _ = Cart.objects.get_existing_or_new(request)
         order_obj = Order.objects.get_order(cart_obj)
-        return Response(DetailedOrderSerializer(order_obj).data)
+        return Response(DetailedOrderSerializer(order_obj).data, status=status.HTTP_201_CREATED)

@@ -1,6 +1,8 @@
 from rest_framework import serializers, fields
 from rest_framework.fields import Field
 
+from drf_extra_fields import fields
+
 from .models import Product, Category, Cart, CartItem, Comment
 from user.serializers import UserSerializer
 
@@ -25,9 +27,17 @@ class CategoryReadSerializer(serializers.ModelSerializer):
         fields = ["id", "title", "sub_category"]
 
 
+class ImageModelSerializer(serializers.ModelSerializer):
+    ''' File Upload '''
+    class Meta:
+        model = Product
+        fields = ['image']
+
+
 class ProductSerializer(serializers.ModelSerializer):
     # category = CategoryWriteSerializer(read_only=True)
-    image = fields.FileField(max_length=None, use_url=True, allow_null=True)
+    # image = fields.HybridImageField(max_length=None, use_url=True, allow_null=True)
+    image = fields.ImageField(allow_null=True, read_only=True)
 
     class Meta:
         model = Product
@@ -48,11 +58,13 @@ class ProductSerializer(serializers.ModelSerializer):
         ]
 
     # def create(self, validated_data):
-    #     validated_data["category"] = Category.objects.create(
-    #         **validated_data.get("category", {})
-    #     )
-    #     product = Product.objects.create(**validated_data)
-    #     return product
+    #     image = validated_data.pop('image')
+    #     return Product.objects.create(image=image)
+        # validated_data["category"] = Category.objects.create(
+        #     **validated_data.get("category", {})
+        # )
+        # product = Product.objects.create(**validated_data)
+        # return product
 
 
 class ChildCommentSerializer(serializers.ModelSerializer):

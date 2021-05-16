@@ -5,6 +5,8 @@ from rest_framework.permissions import (
     AllowAny,
     IsAuthenticatedOrReadOnly,
 )
+from rest_framework.parsers import FormParser, MultiPartParser, FileUploadParser
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.authentication import TokenAuthentication
 
@@ -37,8 +39,18 @@ class CategoryViewSet(viewsets.ModelViewSet):
 @method_decorator(atomic, name="dispatch")
 class ProductViewSet(viewsets.ModelViewSet):
     serializer_class = serializers.ProductSerializer
-    queryset = models.Product.objects.all().order_by("name")
-    # permission_classes = [IsAuthenticatedOrReadOnly]
+    queryset = models.Product.objects.all().order_by("id")
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def partial_update(self, request, *args, **kwargs):
+        """ patch method """
+        instance = self.queryset.get(pk=kwargs.get('pk'))
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            print(serializer.data)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_permissions(self):
         if self.action == "list" or self.action == "retrieve":
@@ -47,19 +59,40 @@ class ProductViewSet(viewsets.ModelViewSet):
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
 
-    # @action(
-    #     detail=True,
-    #     parser_classes=(FormParser, MultiPartParser),
-    #     methods=['PUT']
-    # )
-    # def image(self, request, pk):
-    #     serializer = self.get_serializer(data=request.data)
-    #     if serializer.is_valid():
-    #         poster = models.Product.objects.get(pk=pk)
-    #         poster.image = request.data.get('image')
-    #         poster.save()
-    #         return Response(status=status.HTTP_200_OK)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @action(
+        detail=True,
+        parser_classes=(FormParser, MultiPartParser),
+        methods=['PATCH']
+    )
+    def image(self, request, pk=None):
+        serializer = serializers.ImageModelSerializer(data=request.data)
+        print(serializer)
+        if serializer.is_valid():
+            poster = models.Product.objects.get(pk=pk)
+            poster.image = request.data.get('image')
+            poster.save()
+            print(poster)
+            return Response(status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # if request.method in ['PATCH', 'PUT']:
+        #     image = request.FILES.get('image')
+        #     print(image)
+        #     if not image:
+        #         return Response(status=status.HTTP_400_BAD_REQUEST)
+        #     try:
+        #         poster = models.Product.objects.get(pk=pk)
+        #     except models.Product.DoesNotExist:
+        #         return Response(status=status.HTTP_400_BAD_REQUEST)
+        #     else:
+        #         request.FILES['image'] = request.FILES['image']
+        #         serializer = self.get_serializer(data=request.DATA, files=request.FILES)
+        #         if serializer.is_valid():
+        #             poster.image.save(str(image), File(image))
+        #             return Response(status=status.HTTP_200_OK)
+        #         else:
+        #             return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 
 class CommentViewSet(viewsets.ModelViewSet):
